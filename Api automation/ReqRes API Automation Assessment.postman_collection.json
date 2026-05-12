@@ -1,0 +1,514 @@
+{
+	"info": {
+		"_postman_id": "23764d2f-a698-4031-b056-24e6b76e6564",
+		"name": "ReqRes API Automation Assessment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "51406575",
+		"_collection_link": "https://hasanul-banna-shadhin-3846668.postman.co/workspace/e0592e24-e84b-46cc-8188-dc7838c4c748/collection/51406575-23764d2f-a698-4031-b056-24e6b76e6564?action=share&source=collection_link&creator=51406575"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login and Capture Auth Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Auth token is present\", function () {\r",
+									"    pm.expect(response).to.have.property(\"token\");\r",
+									"    pm.expect(response.token).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"authToken\", response.token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{apiKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "User API",
+			"item": [
+				{
+					"name": "Get User and Verify Name Email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"const user = response.data;\r",
+									"\r",
+									"pm.test(\"User ID matches\", function () {\r",
+									"    pm.expect(user.id).to.eql(Number(pm.environment.get(\"userId\")));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"First name matches\", function () {\r",
+									"    pm.expect(user.first_name).to.eql(pm.environment.get(\"expectedFirstName\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Last name matches\", function () {\r",
+									"    pm.expect(user.last_name).to.eql(pm.environment.get(\"expectedLastName\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Email matches\", function () {\r",
+									"    pm.expect(user.email).to.eql(pm.environment.get(\"expectedEmail\"));\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"originalFirstName\", user.first_name);\r",
+									"pm.environment.set(\"originalLastName\", user.last_name);\r",
+									"pm.environment.set(\"originalEmail\", user.email);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{apiKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PUT Update Profile and Verify updatedAt",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Updated name is correct\", function () {\r",
+									"    pm.expect(response.name).to.eql(pm.environment.get(\"updatedName\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Updated job is correct\", function () {\r",
+									"    pm.expect(response.job).to.eql(pm.environment.get(\"updatedJob\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"updatedAt timestamp is present\", function () {\r",
+									"    pm.expect(response).to.have.property(\"updatedAt\");\r",
+									"    pm.expect(response.updatedAt).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"updatedAt is a valid date\", function () {\r",
+									"    const updatedAt = new Date(response.updatedAt);\r",
+									"    pm.expect(updatedAt.toString()).to.not.eql(\"Invalid Date\");\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"putUpdatedAt\", response.updatedAt);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{apiKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"{{updatedName}}\",\r\n  \"job\": \"{{updatedJob}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Single Field and Verify",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Patched job is correct\", function () {\r",
+									"    pm.expect(response.job).to.eql(pm.environment.get(\"patchedJob\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"updatedAt timestamp is present\", function () {\r",
+									"    pm.expect(response).to.have.property(\"updatedAt\");\r",
+									"    pm.expect(response.updatedAt).to.not.be.empty;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"updatedAt is a valid date\", function () {\r",
+									"    const updatedAt = new Date(response.updatedAt);\r",
+									"    pm.expect(updatedAt.toString()).to.not.eql(\"Invalid Date\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Name field is not changed in PATCH response\", function () {\r",
+									"    pm.expect(response).to.not.have.property(\"name\");\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"patchUpdatedAt\", response.updatedAt);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{apiKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"job\": \"{{patchedJob}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Negative Test Cases",
+			"item": [
+				{
+					"name": "Bad Login Missing Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Error message is returned\", function () {\r",
+									"    pm.expect(response).to.have.property(\"error\");\r",
+									"    pm.expect(response.error).to.not.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{apiKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{email}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bad Get Invalid User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body is empty object\", function () {\r",
+									"    const response = pm.response.json();\r",
+									"    pm.expect(response).to.be.an(\"object\");\r",
+									"    pm.expect(Object.keys(response).length).to.eql(0);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{apiKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{invalidUserId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{invalidUserId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bad Register Missing Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Error message is returned\", function () {\r",
+									"    pm.expect(response).to.have.property(\"error\");\r",
+									"    pm.expect(response.error).to.not.be.empty;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "{{apiKey}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"{{email}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
